@@ -1,0 +1,40 @@
+---
+title: "Final Project"
+author: "Victor Chen"
+date: "10/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(nflscrapR)
+library(tidyverse)
+library(readxl)
+
+player_data <- read.csv("/Users/victorchen/Gov1005/Projects/Final-Project/Basic_Stats.csv")
+
+bengals_games <- scrape_game_ids(2018)
+
+pbp_2018 <- scrape_season_play_by_play(2018, "reg")
+```
+
+```{r}
+bengals_games %>% 
+  filter(home_team == "CIN") %>% 
+    ggplot(aes(x = week, y = home_score)) +
+      geom_col()
+```
+```{r}
+bengals_games %>% 
+  filter(away_team == "CIN") %>% 
+    ggplot(aes(x = week, y = away_score)) +
+      geom_col()
+```
+
+```{r}
+player_data %>% 
+  filter(!is.na(Weight..lbs.)) %>% 
+  ggplot(aes(x = Weight..lbs.)) +
+    geom_density()
+```
+
