@@ -25,14 +25,16 @@ pbp_2018 <- scrape_season_play_by_play(2018, "reg", team = "CIN")
 bengals_games %>% 
   filter(away_team == "CIN") %>% 
     ggplot(aes(x = week, y = away_score)) +
-      geom_col()
+      geom_col() +
+        labs(title = "Bengals 2018 Regular Away Game Score", xlab = "Week", ylab = "Score")
 ```
 
 ```{r player data weight analysis}
 active_player_data %>% 
   filter(!is.na(Weight..lbs.)) %>% 
   ggplot(aes(x = Weight..lbs.)) +
-    geom_density()
+    geom_density() +
+      labs(title = "Player Weight Density", xlab = "Weight", ylab = "Density")
 ```
 
 For my project, I would like to analyze data from the 2018 NFL Season, focusing specifically on my home-town team; the Cincinnati Bengals. I want to look at the detailed play-by-play data from the 2018 season to see to answer the ultimate question of what specific metrics lead to wins for the Cincinnati Bengals. I'm also curious to see how more uncommon statistics that can be drawn from the play-by-play data compare to more successful teams such as the New England Patriots. 
@@ -40,6 +42,14 @@ For my project, I would like to analyze data from the 2018 NFL Season, focusing 
 I pulled the data from the nflscrapR package on github that was widely regarded as the most comprehensive R package for NFL Analysis. Within the package there is general game data from 2009-2018, but also play-by-play data for each game. Additionally, I also pulled a csv file (Basic_Stats.csv) from an online database that includes basic player data for almost every current and previous NFL player. I hope to use this data in order to compare successful players and see if there are any traits/statistics that contribute to successful careers for players grouped by position. 
 
 So far I have taken a look at the extensive data and have begun to play around with the data. After reading all the data in, I took the subset of player_data that is currently active. Additionally, I took the general game data for the 2018 regular season for the Bengals. After creating these new data frames, I created a density plot of active player weights and a plot of the Bengals 2018 away games scores. 
+
+I plan to first breakdown the yardage of each respective game during the regular season to see how the amount of rushing & passing yards contributes to wins. Additionally, I will look at a variety of other statistics such as sacks, interceptions, etc. to see if any of them had a strong correlation with winning. Furthermore, I would like to see if it is possible to take the play-by-play data from the games and make an animated play-by-play diagram of the field. 
+
+In terms of player data, I would like to see how different characteristic factors contribute to success on the field. This would look at data such as height, weight, college, hometown, etc. and compare them to measurable statistics that are relevant for each position for example passing yards, interceptions, touchdowns, etc. for a quarterback. This would allow the user of the app to see various plots that compare these characteristic factors to metrics separated by position. 
+
+
+
+
 
 
 
