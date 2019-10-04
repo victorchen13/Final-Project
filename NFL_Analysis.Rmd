@@ -1,0 +1,47 @@
+---
+title: "NFL_Analysis"
+author: "Victor Chen"
+date: "10/4/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(nflscrapR)
+library(tidyverse)
+library(readxl)
+
+player_data <- read.csv("/Users/victorchen/Gov1005/Projects/Final-Project/Basic_Stats.csv")
+
+active_player_data <- player_data %>% 
+                         filter(Current.Status == "Active")
+
+bengals_games <- scrape_game_ids(2018)
+
+pbp_2018 <- scrape_season_play_by_play(2018, "reg", team = "CIN")
+```
+
+```{r bengals away game scores}
+bengals_games %>% 
+  filter(away_team == "CIN") %>% 
+    ggplot(aes(x = week, y = away_score)) +
+      geom_col()
+```
+
+```{r player data weight analysis}
+active_player_data %>% 
+  filter(!is.na(Weight..lbs.)) %>% 
+  ggplot(aes(x = Weight..lbs.)) +
+    geom_density()
+```
+
+For my project, I would like to analyze data from the 2018 NFL Season, focusing specifically on my home-town team; the Cincinnati Bengals. I want to look at the detailed play-by-play data from the 2018 season to see to answer the ultimate question of what specific metrics lead to wins for the Cincinnati Bengals. I'm also curious to see how more uncommon statistics that can be drawn from the play-by-play data compare to more successful teams such as the New England Patriots. 
+
+I pulled the data from the nflscrapR package on github that was widely regarded as the most comprehensive R package for NFL Analysis. Within the package there is general game data from 2009-2018, but also play-by-play data for each game. Additionally, I also pulled a csv file (Basic_Stats.csv) from an online database that includes basic player data for almost every current and previous NFL player. I hope to use this data in order to compare successful players and see if there are any traits/statistics that contribute to successful careers for players grouped by position. 
+
+So far I have taken a look at the extensive data and have begun to play around with the data. After reading all the data in, I took the subset of player_data that is currently active. Additionally, I took the general game data for the 2018 regular season for the Bengals. After creating these new data frames, I created a density plot of active player weights and a plot of the Bengals 2018 away games scores. 
+
+
+
+```
+
