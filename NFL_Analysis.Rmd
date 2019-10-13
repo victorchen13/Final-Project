@@ -49,6 +49,54 @@ In terms of player data, I would like to see how different characteristic factor
 
 
 
+## Milestone 4
+
+```{r}
+#working with play by play data for the Bengals 2018 season
+
+pbp_2018 %>% 
+
+  #filtering out plays like kickoffs, punts, etc.
+  
+  filter (play_type %in% c("pass","run")) %>% 
+  
+  # creating a density graph of yards gained separated by the play type
+  
+  ggplot(aes(x = yards_gained, color = play_type, fill = play_type)) +
+    geom_density(alpha = 0.7) +
+      labs(title = "Bengals 2018 Yards Gained Distribution by Play Type", x = "Yards Gained", y = "Density")
+```
+```{r}
+#loading play by play data from Bengals 2018 season games
+
+pbp_2018 %>% 
+  
+  #filtered for only passing plays and only the relevant locations
+  
+  filter (play_type == "pass", pass_location %in% c("right", "left", "middle")) %>% 
+  
+  #created a plot of yards gained separated by passing location
+  
+  ggplot(aes(x = yards_gained, color = pass_location, fill = pass_location)) +
+    geom_density(alpha = 0.7) +
+      labs(title = "Bengals 2018 Passing Yards Gained Distribution by Pass Location", x = "Yards Gained", y = "Density")
+
+```
+```{r}
+#loading play by play dataframe for Bengals 2018 Season games
+
+pbp_2018 %>% 
+  
+  #filter for only rushing plays and for only relevant locations
+  
+  filter (play_type == "run", run_location %in% c("right", "left", "middle")) %>% 
+  
+  #created a plot of yards gained separated by rushing location
+  
+  ggplot(aes(x = yards_gained, color = run_location, fill = run_location)) +
+    geom_density(alpha = 0.7) +
+      labs(title = "Bengals 2018 Rushing Yards Gained Distribution by Rushing Location", x = "Yards Gained", y = "Density")
+```
 
 
 
