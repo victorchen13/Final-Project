@@ -9,7 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE)
 library(nflscrapR)
 library(tidyverse)
+library(gt)
 library(readxl)
+
 
 player_data <- read.csv("/Users/victorchen/Gov1005/Projects/Final-Project/Basic_Stats.csv")
 
@@ -99,6 +101,23 @@ pbp_2018 %>%
 ```
 
 
+```{r}
+active_player_data %>% 
+  filter(Current.Team == "Cincinnati Bengals") %>% 
+  ggplot(aes(x = Weight..lbs.)) +
+    geom_density() +
+      labs(title = "Bengals' Player Weight Density", xlab = "Weight", ylab = "Density")
+
+bengals_college <- active_player_data %>% 
+  filter(Current.Team == "Cincinnati Bengals") %>% 
+  group_by(College) %>% 
+  summarise(total = n())
+
+bengals_college %>% 
+  arrange(desc(total)) %>% 
+  gt() %>% 
+      tab_header(title = "Most Common Colleges of Bengal's Players")
+```
 
 
 ```
