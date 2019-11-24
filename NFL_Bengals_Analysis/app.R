@@ -8,12 +8,9 @@ library(readxl)
 library(tidyverse)
 
 
-player_data <- read.csv("Basic_Stats copy.csv")
+active_player_data <- readRDS("active_player_data")
 
-active_player_data <- player_data %>% 
-  filter(Current.Status == "Active")
-
-pbp_2018 <- scrape_season_play_by_play(2018, "reg", team = "CIN")
+pbp_2018 <- readRDS("play_by_play_2018")
 
 # Set Interface 
 
