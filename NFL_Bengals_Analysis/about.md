@@ -1,0 +1,14 @@
+## Background
+
+As a diehard Cincinnati Bengals fan, I have had to watch as my beloved hometown team performs abysmally year after year. With no expectation of improvement anytime soon (they are currently 0-6 at the time this was written), I wanted to conduct some data analysis and statistical modeling to get to the core of the problem. 
+For my project, I will analyze data from the 2018 NFL Season, focusing specifically on the detailed play-by-play data from the 2018 season to try and answer the ultimate question of what specific metrics lead to wins for the Cincinnati Bengals. I'm also curious to see how more uncommon statistics that can be drawn from the play-by-play data compare to more successful teams such as the New England Patriots. 
+                             
+## The Data
+
+I pulled the data from the nflscrapR package on github that was widely regarded as the most comprehensive R package for NFL Analysis. Within the package there is general game data from 2009-2018, but also play-by-play data for each game. Additionally, I also pulled a csv file (Basic_Stats.csv) from an online database that includes basic player data for almost every current and previous NFL player.
+                              
+## About Me
+
+I am a sophomore at Harvard College with an expected concentration in Economics. 
+                                 
+Feel free to contact me at victorchen@college.harvard.edu or connect with me on Linkedin (https://www.linkedin.com/in/victorchen13/)")
