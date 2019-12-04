@@ -1,7 +1,7 @@
 ## Background
 
-As a diehard Cincinnati Bengals fan, I have had to watch as my beloved hometown team performs abysmally year after year. With no expectation of improvement anytime soon (they are currently 0-6 at the time this was written), I wanted to conduct some data analysis and statistical modeling to get to the core of the problem. 
-For my project, I will analyze data from the 2018 NFL Season, focusing specifically on the detailed play-by-play data from the 2018 season to try and answer the ultimate question of what specific metrics lead to wins for the Cincinnati Bengals. I'm also curious to see how more uncommon statistics that can be drawn from the play-by-play data compare to more successful teams such as the New England Patriots. 
+As a diehard Cincinnati Bengals fan, I have had to watch as my beloved hometown team performs abysmally year after year. With no expectation of improvement anytime soon (they are currently 1-11 at the time this was written), I wanted to conduct some data analysis and statistical modeling to get to the core of the problem. 
+For my project, I will analyze data from the 2018 NFL Season, focusing specifically on the detailed play-by-play data from the 2018 season to try and answer the ultimate question of what drives points and subsequently wins. 
                              
 ## The Data
 
