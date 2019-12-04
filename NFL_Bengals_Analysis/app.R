@@ -40,13 +40,17 @@ ui <-
                           
                           tabPanel("Win Probability",
 
-                                   h6("Due to an error in the NFL's API, the win probability is missing for Week 9, CIN vs NO"),
+                                   h6("NOTE: Due to an error in the NFL's API, the win probability data is missing for Week 9, CIN vs NO"),
 
                                    br(),
                                    
                                    dataTableOutput("score_table"),
 
-                                   fluidRow(width = 10, height = "80%", plotlyOutput("win_prob")))),
+                                   fluidRow(width = 10, height = "80%", plotlyOutput("win_prob")),
+                                   
+                                   br(),
+                                   
+                                   dataTableOutput("play_table"))),
                                    
                   # creates tab with 4 plots
                   
@@ -147,7 +151,7 @@ server <- function(input, output) {
                            p = active_player_data %>% 
                               ggplot(aes(x = Weight..lbs.)) +
                                   geom_density() +
-                                  labs(title = "Player Weight Density", xlab = "Weight", ylab = "Density")
+                                  labs(title = "Player Weight Density", x = "Weight", y = "Density")
                           })
                       
                       # creates density plot of height
@@ -156,7 +160,7 @@ server <- function(input, output) {
                            p =  active_player_data %>% 
                               ggplot(aes(x = Height..inches.)) +
                                   geom_density() +
-                                  labs(title = "Player Height Density", xlab = "Height", ylab = "Density")
+                                  labs(title = "Player Height Density", x = "Height", y = "Density")
                           })
                          
                       # creates bar plot of average expected points by play
@@ -166,12 +170,12 @@ server <- function(input, output) {
                               group_by(play_type) %>%
                               filter(play_type != "null") %>% 
                               summarize_if(is.numeric, mean, na.rm = T) %>%
-                              mutate(play_type = reorder(play_type, ep, mean)) %>%
+                              mutate(play_type = reorder(play_type, epa, mean)) %>%
                               ggplot() +
-                              aes(y = ep, x = play_type, group = play_type, fill = play_type)+
+                              aes(y = epa, x = play_type, group = play_type, fill = play_type)+
                               geom_col(position = 'dodge')+
                               coord_flip()+
-                              labs(x = "", y = "", title = "Average Expected Points by Play Type for Bengals, 2018")
+                              labs(x = "", y = "", title = "Average Expected Points Added by Play Type for Bengals, 2018")
                             hide_legend(p)
                           })
                           
@@ -182,12 +186,12 @@ server <- function(input, output) {
                               group_by(play_type) %>%
                               filter(play_type != "null") %>% 
                               summarize_if(is.numeric, mean, na.rm = T) %>%
-                              mutate(play_type = reorder(play_type, wp, mean)) %>%
+                              mutate(play_type = reorder(play_type, wpa, mean)) %>%
                               ggplot()+
-                              aes(y = wp, x = play_type, group = play_type, fill = play_type)+
+                              aes(y = wpa, x = play_type, group = play_type, fill = play_type)+
                               geom_col(position = 'dodge')+
                               coord_flip()+
-                              labs(x = "", y = "", title = "Average Win Probability by Play Type for Bengals, 2018")
+                              labs(x = "", y = "", title = "Average Win Probability Added by Play Type for Bengals, 2018")
                             hide_legend(p)
                           })
                     
@@ -276,6 +280,14 @@ server <- function(input, output) {
                               filter(week == input$week) %>%
                               pull(home_team_color)
                           })
+                         
+                      # creates play table
+                         
+                         output$play_table = DT::renderDataTable({
+                            winprob_reactive() %>% 
+                              select(Drive, qtr, down, time, TimeSecs, desc, Yards.Gained)
+                         })
+                         
                           
                       # creates win probability plot
                          
