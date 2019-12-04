@@ -1,0 +1,12 @@
+name: NFL_Bengals_Analysis
+title: NFL_Bengals_Analysis
+username:
+account: victorchen
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1517640
+bundleId: 2638432
+url: https://victorchen.shinyapps.io/NFL_Bengals_Analysis/
+when: 1575425492.17265
+asMultiple: FALSE
+asStatic: FALSE

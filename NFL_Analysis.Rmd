@@ -18,9 +18,86 @@ player_data <- read.csv("/Users/victorchen/Gov1005/Projects/Final-Project/Basic_
 active_player_data <- player_data %>% 
                          filter(Current.Status == "Active")
 
-bengals_games <- scrape_game_ids(2018)
+bengals_games <- scrape_game_ids(2018) %>% 
+                    filter(home_team == "CIN" | away_team == "CIN")
 
 pbp_2018 <- scrape_season_play_by_play(2018, "reg", team = "CIN")
+
+cin_wk1_pbp <- bengals_games %>%
+  filter(week == "1") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk2_pbp <- bengals_games %>%
+  filter(week == "2") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk3_pbp <- bengals_games %>%
+  filter(week == "3") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk4_pbp <- bengals_games %>%
+  filter(week == "4") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk5_pbp <- bengals_games %>%
+  filter(week == "5") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk6_pbp <- bengals_games %>%
+  filter(week == "6") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk7_pbp <- bengals_games %>%
+  filter(week == "7") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk8_pbp <- bengals_games %>%
+  filter(week == "8") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk10_pbp <- bengals_games %>%
+  filter(week == "10") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk11_pbp <- bengals_games %>%
+  filter(week == "11") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk12_pbp <- bengals_games %>%
+  filter(week == "12") %>%
+  pull(game_id) %>%
+  game_play_by_play
+
+cin_wk13_pbp <- bengals_games %>%
+  filter(week == "13") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk14_pbp <- bengals_games %>%
+  filter(week == "14") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk15_pbp <- bengals_games %>%
+  filter(week == "15") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
+cin_wk16_pbp <- bengals_games %>%
+  filter(week == "16") %>%
+  pull(game_id) %>%
+  game_play_by_play()
+
 ```
 
 ```{r bengals away game scores}
@@ -117,6 +194,65 @@ bengals_college %>%
   arrange(desc(total)) %>% 
   gt() %>% 
       tab_header(title = "Most Common Colleges of Bengal's Players")
+```
+```{r}
+
+# install.packages("teamcolors")
+library(teamcolors)
+
+# Pull out the Steelers and Chief colors:
+nfl_teamcolors <- teamcolors %>% filter(league == "nfl")
+cin_color <- nfl_teamcolors %>%
+  filter(name == "Cincinnati Bengals") %>%
+  pull(secondary)
+ind_color <- nfl_teamcolors %>%
+  filter(name == "Indianapolis Colts") %>%
+  pull(primary)
+
+# Now generate the win probability chart:
+cin_wk1_pbp %>%
+  filter(!is.na(Home_WP_pre),
+         !is.na(Away_WP_pre)) %>%
+  dplyr::select(TimeSecs,
+                Home_WP_pre,
+                Away_WP_pre) %>%
+  gather(team, WPA, -TimeSecs) %>%
+  ggplot(aes(x = TimeSecs, y = WPA, color = team)) +
+  geom_line(size = 2) +
+  geom_hline(yintercept = 0.5, color = "gray", linetype = "dashed") +
+  scale_x_reverse(breaks = seq(0, 3600, 300)) + 
+  annotate("text", x = 3000, y = .75, label = "IND", color = ind_color, size = 8) + 
+  annotate("text", x = 3000, y = .25, label = "CIN", color = cin_color, size = 8) +
+  geom_vline(xintercept = 900, linetype = "dashed", black) + 
+  geom_vline(xintercept = 1800, linetype = "dashed", black) + 
+  geom_vline(xintercept = 2700, linetype = "dashed", black) + 
+  geom_vline(xintercept = 0, linetype = "dashed", black) + 
+  labs(
+    x = "Time Remaining (seconds)",
+    y = "Win Probability",
+    title = "Week 1 Win Probability Chart",
+    subtitle = "Indianapolis Colts vs. Cincinnati Bengals, 2018",
+    caption = "Data from nflscrapR"
+  ) + theme_bw()
+```
+
+```{r}
+nfl_teamcolors_combined <- nfl_teamcolors %>% 
+  mutate(abbreviation = c("ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC", "MIA", "MIN", "NE", "NO", "NYG", "NYJ", "OAK", "PHI", "PIT", "SD", "SEA", "SF", "STL", "TB", "TEN", "WAS"))
+
+bengals_games_combined <- bengals_games %>%
+  mutate(away_team_color = c("#fb4f14", "#241773", "#fb4f14", "#fb4f14", "#008e97", "#ffb612", "#fb4f14","#d50a0a", "#9f8958", "#fb4f14", "#22150c", "#002244", "#fb4f14", "#a5acaf", "#fb4f14", "#fb4f14")) %>%
+    mutate(home_team_color = c("#002c5f", "#fb4f14", "#0085ca", "#a71930", "#fb4f14", "#fb4f14", "#e31837", "#fb4f14",  "#fb4f14", "#241773", "#fb4f14", "#fb4f14", "#002244", "#fb4f14","#22150c", "#ffb612"))
+```
+
+
+```{r}
+bengals_roster <- get_season_rosters(2018, teams = "CIN", type = "reg", positions = c("QUARTERBACK", "RUNNING_BACK","WIDE_RECEIVER","TIGHT_END","DEFENSIVE_LINEMAN","LINEBACKER","DEFENSIVE_BACK","KICKOFF_KICKER","KICK_RETURNER","PUNTER","PUNT_RETURNER","FIELD_GOAL_KICKER"))
+```
+
+```{r}
+bengals_players <- agg_player_season(2018) %>% 
+                      filter(Team == "CIN")
 ```
 
 
