@@ -5,7 +5,9 @@ For my project, I will analyze data from the 2018 NFL Season, focusing specifica
                              
 ## The Data
 
-I pulled the data from the nflscrapR package on github that was widely regarded as the most comprehensive R package for NFL Analysis. Within the package there is general game data from 2009-2018, but also play-by-play data for each game. Additionally, I also pulled a csv file (Basic_Stats.csv) from an online database that includes basic player data for almost every current and previous NFL player.
+I pulled the data from the nflscrapR package on github that was widely regarded as the most comprehensive R package for NFL Analysis. Within the package there is general game data from 2009-2018, but also play-by-play data for each game. The nflscrapR package includes a Expected Points and Win Probability Model (details here: https://arxiv.org/abs/1802.00998)
+
+Additionally, I also pulled a csv file (Basic_Stats.csv) from an online database that includes basic player data for almost every current and previous NFL player.
                               
 ## About Me
 

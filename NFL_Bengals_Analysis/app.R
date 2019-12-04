@@ -10,6 +10,7 @@ library(tidyverse)
 library(gt)
 library(DT)
 
+# read in necessary RDS files
 
 active_player_data <- readRDS("active_player_data")
 
@@ -17,34 +18,26 @@ pbp_2018 <- readRDS("play_by_play_2018")
 
 bengals_games <- readRDS("bengals_games")
 
-# nfl_teamcolors <- teamcolors %>% filter(league == "nfl")
-# cin_color <- nfl_teamcolors %>%
-#   filter(name == "Cincinnati Bengals") %>%
-#   pull(secondary)
-# ind_color <- nfl_teamcolors %>%
-#   filter(name == "Indianapolis Colts") %>%
-#   pull(primary)
-# bal_color <- nfl_teamcolors %>%
-#   filter(name == "Baltimore Ravens") %>%
-#   pull(primary)
-# car_color <- nfl_teamcolors %>%
-#   filter(name == "Carolina Panthers") %>%
-#   pull(primary)
-# atl_color <- nfl_teamcolors %>%
-#   filter(name == "Atlanta Falcons") %>%
-#   pull(primary)
-# mia_color <- nfl_teamcolors %>%
-#   filter(name == "Indianapolis Colts") %>%
-#   pull(primary)
+bengals_players <- readRDS("bengals_players")
 
 # Set Interface 
 
 ui <- 
     fluidPage(theme = shinytheme("united"),
+              
+              # creates navbar for shiny app
+              
                 navbarPage("Cincinnati Bengals Football Analysis",
+                           
+              # creates about page that displays text file
+              
                  tabPanel("About", includeMarkdown("about.md")),
+              
+              # Displays table with score and a plot with win probability
+              
                  tabPanel("Bengals Win Probability",
                           selectInput("week", h5("Week to Analyze"), selected = 1, choices = 1:16),
+                          
                           tabPanel("Win Probability",
 
                                    h6("Due to an error in the NFL's API, the win probability is missing for Week 9, CIN vs NO"),
@@ -54,7 +47,9 @@ ui <-
                                    dataTableOutput("score_table"),
 
                                    fluidRow(width = 10, height = "80%", plotlyOutput("win_prob")))),
-                          
+                                   
+                  # creates tab with 4 plots
+                  
                  tabPanel("Bengals Trend Explorer",
                                tabsetPanel(type = "tabs",
                                               tabPanel("Expected Points",
@@ -66,6 +61,9 @@ ui <-
                                                      tabPanel("Passes vs Rushes - Scatter",
                                                 fluidRow(width = 10, height = "80%", plotlyOutput("explore_pass_rush_scatter")))
                                                              )),
+                 
+                # creates tab with plots for play call analysis and player analysis
+                
                  tabPanel("Play Call Summaries",
                           tabsetPanel(
                             
@@ -120,6 +118,8 @@ ui <-
 # Define server logic
 
 server <- function(input, output) {
+  
+                      # creates density plot of rushing plays
                   
                           output$runPlot <- renderPlotly({
                             p =pbp_2018 %>%
@@ -129,7 +129,9 @@ server <- function(input, output) {
                                   labs(title = "Bengals 2018 Yards Gained Distribution", x = "Yards Gained", y = "Density")
                           }
                           )    
-   
+                      
+                      # creates density plot of passing plays
+                          
                           output$passPlot <- renderPlotly({
                            p = pbp_2018 %>%
                               filter(play_type == "pass") %>% 
@@ -138,13 +140,17 @@ server <- function(input, output) {
                               labs(title = "Bengals 2018 Yards Gained Distribution", x = "Yards Gained", y = "Density")
                           }
                           )    
-    
+                          
+                       # creates density plot of weight
+                          
                           output$weightPlot <- renderPlotly({
                            p = active_player_data %>% 
                               ggplot(aes(x = Weight..lbs.)) +
                                   geom_density() +
                                   labs(title = "Player Weight Density", xlab = "Weight", ylab = "Density")
                           })
+                      
+                      # creates density plot of height
                           
                           output$heightPlot <- renderPlotly({
                            p =  active_player_data %>% 
@@ -153,6 +159,8 @@ server <- function(input, output) {
                                   labs(title = "Player Height Density", xlab = "Height", ylab = "Density")
                           })
                          
+                      # creates bar plot of average expected points by play
+                          
                           output$explore_ep <- renderPlotly({
                             p = pbp_2018 %>%
                               group_by(play_type) %>%
@@ -163,9 +171,11 @@ server <- function(input, output) {
                               aes(y = ep, x = play_type, group = play_type, fill = play_type)+
                               geom_col(position = 'dodge')+
                               coord_flip()+
-                              labs(x = "", y = "", title = "Average Expected Points by Play Type")
+                              labs(x = "", y = "", title = "Average Expected Points by Play Type for Bengals, 2018")
                             hide_legend(p)
                           })
+                          
+                    # creates bar plot of win probability by play
                           
                           output$explore_wp <- renderPlotly({
                             p = pbp_2018 %>%
@@ -177,9 +187,11 @@ server <- function(input, output) {
                               aes(y = wp, x = play_type, group = play_type, fill = play_type)+
                               geom_col(position = 'dodge')+
                               coord_flip()+
-                              labs(x = "", y = "", title = "Average Win Probability by Play Type")
+                              labs(x = "", y = "", title = "Average Win Probability by Play Type for Bengals, 2018")
                             hide_legend(p)
                           })
+                    
+                    # creates density plot of average expected points by play
                           
                           output$explore_pass_and_rush <- renderPlotly({
                             p = pbp_2018 %>%
@@ -190,8 +202,11 @@ server <- function(input, output) {
                               geom_density(alpha = .6)+
                               scale_x_continuous(breaks = seq(-10,10,2.5))+
                               labs(x = "Expected Points Added", y = "Percent of Total Plays",
-                                   title = "Distribution  of Expected Points Added, Run Plays vs Pass Plays")
+                                   title = "Distribution of Expected Points Added by Play Type for Bengals, 2018")
                           })
+                          
+                   # creates scatter plot of win probability added by expected points added
+                          
                           
                           output$explore_pass_rush_scatter <- renderPlotly({
                             p = pbp_2018 %>%
@@ -199,13 +214,15 @@ server <- function(input, output) {
                               filter(play_type == "run" | play_type == "pass") %>%
                               ggplot()+
                               aes(x = wpa, y = epa, color = play_type)+
-                              geom_smooth()+
+                              geom_smooth(method = "lm")+
                               geom_point(alpha = .3)+
                               scale_x_continuous(limits = c(-0.5,0.5))+
                               labs(x = "Win Probability Added",
                                    y = "Expected Points Added",
-                                   title = ("Win Probability Added by Expected Points Added"))
+                                   title = ("Win Probability Added by Expected Points Added for Bengals, 2018"))
                           })
+                          
+                       # creates reactive for score data
                           
                           winprobtable_reactive = reactive({
                             bengals_games %>%
@@ -213,9 +230,13 @@ server <- function(input, output) {
                               select(home_team, away_team, home_score, away_score)
                           })
                           
+                       # creates table for score data
+                          
                           output$score_table = DT::renderDataTable({
                            datatable(winprobtable_reactive(), colnames=c("Home Team", "Away Team", "Home Score", "Away Score"))
                           })
+                          
+                       # creates reactive for play by play data
                           
                           winprob_reactive = reactive({
                            bengals_games %>%
@@ -224,11 +245,15 @@ server <- function(input, output) {
                               game_play_by_play()
                           })
                           
+                      # creates reactive for away team identification
+                          
                           away_team_reactive = reactive({
                             bengals_games %>%
                               filter(week == input$week) %>%
                               pull(away_team)
                           })
+                          
+                      # creates reactive for home team identification
                           
                           home_team_reactive = reactive({
                             bengals_games %>%
@@ -236,11 +261,15 @@ server <- function(input, output) {
                               pull(home_team)
                           })
                           
+                      # creates reactive for away team color identification
+                          
                           away_color_reactive = reactive({
                             bengals_games %>%
                               filter(week == input$week) %>%
                               pull(away_team_color)
                           })
+                      
+                      # creates reactive for home team color identification
                           
                          home_color_reactive = reactive({
                             bengals_games %>%
@@ -248,6 +277,8 @@ server <- function(input, output) {
                               pull(home_team_color)
                           })
                           
+                      # creates win probability plot
+                         
                           output$win_prob <- renderPlotly({
                           p = winprob_reactive() %>%
                             filter(!is.na(Home_WP_pre),
@@ -278,7 +309,7 @@ server <- function(input, output) {
                             ) + theme_bw()
                           })
                           
-}   
+}
 
     
 # Run the application 
