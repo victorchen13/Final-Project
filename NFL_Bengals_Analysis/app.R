@@ -20,6 +20,19 @@ bengals_games <- readRDS("bengals_games")
 
 bengals_players <- readRDS("bengals_players")
 
+rushing_players <- pbp_2018 %>% 
+                        filter(posteam == "CIN") %>% 
+                          select(rusher_player_name) %>% 
+                          unique() %>% 
+                          filter(rusher_player_name != "NA")
+
+receiving_players <- pbp_2018 %>% 
+  filter(posteam == "CIN") %>% 
+  select(receiver_player_name) %>% 
+  unique() %>% 
+  filter(receiver_player_name != "NA")
+  
+
 # Set Interface 
 
 ui <- 
@@ -65,6 +78,25 @@ ui <-
                                                      tabPanel("Passes vs Rushes - Scatter",
                                                 fluidRow(width = 10, height = "80%", plotlyOutput("explore_pass_rush_scatter")))
                                                              )),
+              
+              tabPanel("Bengals Win Probability Model",
+                       tabsetPanel(type = "tabs",
+                                   tabPanel("Win Probability by Rusher",
+                                            selectInput("wpa_rusher_name", "Player", choices = rushing_players),
+                                                    fluidRow(width = 10, height = "80%", plotlyOutput("wpa_rusher"))),
+                                   tabPanel("Win Probability by Receiver",
+                                            selectInput("wpa_receiver_name", "Player", choices = receiving_players),
+                                                     fluidRow(width = 10, height = "80%", plotlyOutput("wpa_receiver"))),         
+                                   tabPanel("Win Probability by Play",
+                                            selectInput("play_type_wpa", "Play Type", choices = c("pass", "run")),
+                                                  fluidRow(width = 10, height = "80%", plotlyOutput("wpa_play"))),
+                                   tabPanel("Win Probability by Rushing Location",
+                                            selectInput("rushing_location_wpa", "Rushing Location", choices = c("left", "middle", "right")),
+                                                  fluidRow(width = 10, height = "80%", plotlyOutput("wpa_rushing_location"))),
+                                   tabPanel("Win Probability by Passing Location",
+                                            selectInput("passing_location_wpa", "Passing Location", choices = c("left", "middle", "right")),
+                                                  fluidRow(width = 10, height = "80%", plotlyOutput("wpa_passing_location")))
+                       )),
                  
                 # creates tab with plots for play call analysis and player analysis
                 
@@ -218,12 +250,99 @@ server <- function(input, output) {
                               filter(play_type == "run" | play_type == "pass") %>%
                               ggplot()+
                               aes(x = wpa, y = epa, color = play_type)+
-                              geom_smooth(method = "lm")+
-                              geom_point(alpha = .3)+
+                              geom_smooth(method = "lm", se = FALSE)+
+                              geom_point(alpha = .5)+
                               scale_x_continuous(limits = c(-0.5,0.5))+
                               labs(x = "Win Probability Added",
                                    y = "Expected Points Added",
                                    title = ("Win Probability Added by Expected Points Added for Bengals, 2018"))
+                          })
+                          
+                          
+                          wpa_rusher_reactive = reactive({
+                            pbp_2018 %>%
+                              filter(posteam == "CIN") %>% 
+                              filter(rusher_player_name == input$wpa_rusher_name)
+                          })
+                          
+                          output$wpa_rusher <- renderPlotly({
+                            p = wpa_rusher_reactive() %>% 
+                              ggplot()+
+                              aes(x = yards_gained, y = wpa)+
+                              geom_smooth(method = "lm", se = FALSE)+
+                              geom_point(alpha = .5)+
+                              labs(x = "Yards Gained",
+                                   y = "Win Probability Added",
+                                   title = ("Win Probability Added by Rusher, 2018"))
+                          })
+                          
+                          
+                          wpa_receiver_reactive = reactive({
+                            pbp_2018 %>%
+                              filter(posteam == "CIN") %>% 
+                              filter(receiver_player_name == input$wpa_receiver_name)
+                          })
+                          
+                          output$wpa_receiver <- renderPlotly({
+                            p = wpa_receiver_reactive() %>% 
+                              ggplot()+
+                              aes(x = yards_gained, y = wpa)+
+                              geom_smooth(method = "lm", se = FALSE)+
+                              geom_point(alpha = .5)+
+                              labs(x = "Yards Gained",
+                                   y = "Win Probability Added",
+                                   title = ("Win Probability Added by Receiver, 2018"))
+                          })
+                          
+                          wpa_play_reactive = reactive({
+                            pbp_2018 %>%
+                              filter(posteam == "CIN") %>% 
+                              filter(play_type == input$play_type_wpa)
+                          })
+                          
+                          output$wpa_play <- renderPlotly({
+                            p = wpa_play_reactive() %>% 
+                              ggplot()+
+                              aes(x = yards_gained, y = wpa, color = play_type)+
+                              geom_smooth(method = "lm", se = FALSE)+
+                              geom_point(alpha = .5)+
+                              labs(x = "Yards Gained",
+                                   y = "Win Probability Added",
+                                   title = ("Win Probability Added by Play, 2018"))
+                          })
+                          
+                          wpa_pass_location_reactive = reactive({
+                            pbp_2018 %>%
+                              filter(posteam == "CIN") %>% 
+                              filter(pass_location == input$passing_location_wpa)
+                          })
+                          
+                          output$wpa_passing_location <- renderPlotly({
+                            p = wpa_pass_location_reactive() %>% 
+                              ggplot()+
+                              aes(x = yards_gained, y = wpa, color = pass_location)+
+                              geom_smooth(method = "lm", se = FALSE)+
+                              geom_point(alpha = .5)+
+                              labs(x = "Yards Gained",
+                                   y = "Win Probability Added",
+                                   title = ("Win Probability Added by Pass Location, 2018"))
+                          })
+                          
+                          wpa_run_location_reactive = reactive({
+                            pbp_2018 %>%
+                              filter(posteam == "CIN") %>% 
+                              filter(run_location == input$rushing_location_wpa)
+                          })
+                          
+                          output$wpa_rushing_location <- renderPlotly({
+                            p = wpa_run_location_reactive() %>% 
+                              ggplot()+
+                              aes(x = yards_gained, y = wpa, color = run_location)+
+                              geom_smooth(method = "lm", se = FALSE)+
+                              geom_point(alpha = .5)+
+                              labs(x = "Yards Gained",
+                                   y = "Win Probability Added",
+                                   title = ("Win Probability Added by Rush Location, 2018"))
                           })
                           
                        # creates reactive for score data
@@ -316,7 +435,6 @@ server <- function(input, output) {
                               x = "Time Remaining (seconds)",
                               y = "Win Probability",
                               title = paste0("Week ", input$week, " Win Probability"),
-                              subtitle = "Indianapolis Colts vs. Cincinnati Bengals, 2018",
                               caption = "Data from nflscrapR"
                             ) + theme_bw()
                           })
