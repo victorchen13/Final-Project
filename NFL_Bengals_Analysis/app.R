@@ -41,17 +41,14 @@ ui <-
               # creates navbar for shiny app
               
                 navbarPage("Cincinnati Bengals Football Analysis",
-                           
-              # creates about page that displays text file
-              
-                 tabPanel("About", includeMarkdown("about.md")),
+                          
               
               # Displays table with score and a plot with win probability
               
                  tabPanel("Bengals Win Probability",
                           selectInput("week", h5("Week to Analyze"), selected = 1, choices = 1:16),
                           
-                          tabPanel("Win Probability",
+                          tabPanel("Win Probability Tracker",
 
                                    h6("NOTE: Due to an error in the NFL's API, the win probability data is missing for Week 9, CIN vs NO"),
 
@@ -64,22 +61,10 @@ ui <-
                                    br(),
                                    
                                    dataTableOutput("play_table"))),
-                                   
-                  # creates tab with 4 plots
-                  
-                 tabPanel("Bengals Trend Explorer",
-                               tabsetPanel(type = "tabs",
-                                              tabPanel("Expected Points",
-                                                fluidRow(width = 10, height = "80%", plotlyOutput("explore_ep"))),
-                                                    tabPanel("Win Probability",
-                                                fluidRow(width = 10, height = "80%", plotlyOutput("explore_wp"))),
-                                                    tabPanel("Passes vs Rushes - Density",
-                                                fluidRow(width = 10, height = "80%", plotlyOutput("explore_pass_and_rush"))),
-                                                     tabPanel("Passes vs Rushes - Scatter",
-                                                fluidRow(width = 10, height = "80%", plotlyOutput("explore_pass_rush_scatter")))
-                                                             )),
+                                  
+              # creates tab panel with wpa models 
               
-              tabPanel("Bengals Win Probability Model",
+              tabPanel("Bengals Win Probability Added Models",
                        tabsetPanel(type = "tabs",
                                    tabPanel("Win Probability by Rusher",
                                             selectInput("wpa_rusher_name", "Player", choices = rushing_players),
@@ -97,7 +82,21 @@ ui <-
                                             selectInput("passing_location_wpa", "Passing Location", choices = c("left", "middle", "right")),
                                                   fluidRow(width = 10, height = "80%", plotlyOutput("wpa_passing_location")))
                        )),
-                 
+              
+              # creates tab with 4 plots
+              
+              tabPanel("Bengals Trend Explorer",
+                       tabsetPanel(type = "tabs",
+                                   tabPanel("Expected Points",
+                                            fluidRow(width = 10, height = "80%", plotlyOutput("explore_ep"))),
+                                   tabPanel("Win Probability",
+                                            fluidRow(width = 10, height = "80%", plotlyOutput("explore_wp"))),
+                                   tabPanel("Passes vs Rushes - Density",
+                                            fluidRow(width = 10, height = "80%", plotlyOutput("explore_pass_and_rush"))),
+                                   tabPanel("Passes vs Rushes - Scatter",
+                                            fluidRow(width = 10, height = "80%", plotlyOutput("explore_pass_rush_scatter")))
+                       )),
+              
                 # creates tab with plots for play call analysis and player analysis
                 
                  tabPanel("Play Call Summaries",
@@ -123,6 +122,7 @@ ui <-
                                      
                                      mainPanel(plotlyOutput("passPlot")))
                             ),
+                          
                  tabPanel("NFL Player Analysis",
                           tabsetPanel(
                               
@@ -147,7 +147,14 @@ ui <-
                                        mainPanel(plotlyOutput("weightPlot")))
                                     )
                                   )
-                                )
+                                ),
+              # creates about page that displays text file
+              
+              tabPanel("About",  fluidPage(
+                HTML('<iframe width="560" height="315" src="https://www.youtube.com/embed/gRX9uqMxgbQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>')
+              ),
+                                  br(),
+                       includeMarkdown("about.md"))
                               )
                             )
 
@@ -243,7 +250,6 @@ server <- function(input, output) {
                           
                    # creates scatter plot of win probability added by expected points added
                           
-                          
                           output$explore_pass_rush_scatter <- renderPlotly({
                             p = pbp_2018 %>%
                               filter(play_type != "null") %>% 
@@ -258,12 +264,15 @@ server <- function(input, output) {
                                    title = ("Win Probability Added by Expected Points Added for Bengals, 2018"))
                           })
                           
+                          # creates reactive for rusher model
                           
                           wpa_rusher_reactive = reactive({
                             pbp_2018 %>%
                               filter(posteam == "CIN") %>% 
                               filter(rusher_player_name == input$wpa_rusher_name)
                           })
+                          
+                          # creates scatter plot for each individual rusher's wpa by yards gained
                           
                           output$wpa_rusher <- renderPlotly({
                             p = wpa_rusher_reactive() %>% 
@@ -276,12 +285,15 @@ server <- function(input, output) {
                                    title = ("Win Probability Added by Rusher, 2018"))
                           })
                           
+                          # creates reactive for receiver model
                           
                           wpa_receiver_reactive = reactive({
                             pbp_2018 %>%
                               filter(posteam == "CIN") %>% 
                               filter(receiver_player_name == input$wpa_receiver_name)
                           })
+                          
+                          # creates scatter plot for each receiver of wpa by yards gained
                           
                           output$wpa_receiver <- renderPlotly({
                             p = wpa_receiver_reactive() %>% 
@@ -294,11 +306,15 @@ server <- function(input, output) {
                                    title = ("Win Probability Added by Receiver, 2018"))
                           })
                           
+                          # creates reactive for play model
+                          
                           wpa_play_reactive = reactive({
                             pbp_2018 %>%
                               filter(posteam == "CIN") %>% 
                               filter(play_type == input$play_type_wpa)
                           })
+                          
+                          # creates a scatter plot for wpa and yards gained by play type
                           
                           output$wpa_play <- renderPlotly({
                             p = wpa_play_reactive() %>% 
@@ -311,11 +327,15 @@ server <- function(input, output) {
                                    title = ("Win Probability Added by Play, 2018"))
                           })
                           
+                          # creates reactive for pass location
+                          
                           wpa_pass_location_reactive = reactive({
                             pbp_2018 %>%
                               filter(posteam == "CIN") %>% 
                               filter(pass_location == input$passing_location_wpa)
                           })
+                          
+                          # creates scatter plot wpa and yards gained by pass location
                           
                           output$wpa_passing_location <- renderPlotly({
                             p = wpa_pass_location_reactive() %>% 
@@ -328,11 +348,15 @@ server <- function(input, output) {
                                    title = ("Win Probability Added by Pass Location, 2018"))
                           })
                           
+                          # creates reactive for run location model
+                          
                           wpa_run_location_reactive = reactive({
                             pbp_2018 %>%
                               filter(posteam == "CIN") %>% 
                               filter(run_location == input$rushing_location_wpa)
                           })
+                          
+                          # creates scatter plot for wpa and yards gained by rushing location
                           
                           output$wpa_rushing_location <- renderPlotly({
                             p = wpa_run_location_reactive() %>% 
